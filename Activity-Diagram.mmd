@@ -1,0 +1,179 @@
+---
+config:
+  layout: fixed
+  look: neo
+title: ConcurQueue - Concurrent Task Dispatch System
+---
+flowchart TD
+ subgraph Producers["🏭 Producer Threads"]
+        P1["Producer Thread 1"]
+        P2["Producer Thread 2"]
+        P3["Producer Thread 3"]
+        CreateTask1["Create Task with Priority"]
+        CreateTask2["Create Task with Priority"]
+        CreateTask3["Create Task with Priority"]
+        SubmitTask1["Submit Task"]
+        SubmitTask2["Submit Task"]
+        SubmitTask3["Submit Task"]
+  end
+ subgraph StatusManagement["📊 Task Status Management"]
+        StatusMap[/"ConcurrentHashMap&lt;UUID, TaskStatus&gt;<br>Thread-Safe Access"/]
+        UpdateSubmitted["Update Status: SUBMITTED"]
+        UpdateProcessing["Update Status: PROCESSING"]
+        UpdateCompleted["Update Status: COMPLETED"]
+        UpdateFailed["Update Status: FAILED"]
+        UpdateRetrying["Update Status: RETRYING"]
+  end
+ subgraph ConsumerPool["👷 Worker Thread Pool - ExecutorService"]
+        Worker1["Worker Thread 1"]
+        Worker2["Worker Thread 2"]
+        Worker3["Worker Thread 3"]
+        Fetch1["Fetch Task from Queue"]
+        Fetch2["Fetch Task from Queue"]
+        Fetch3["Fetch Task from Queue"]
+        Process1["Process Task<br>Thread.sleep + Logging"]
+        Process2["Process Task<br>Thread.sleep + Logging"]
+        Process3["Process Task<br>Thread.sleep + Logging"]
+  end
+ subgraph RaceDemo["⚠️ Race Condition Demonstration"]
+        SharedCounter["Shared Task Counter<br>taskProcessedCount"]
+        UnsafeIncrement["Unsafe Counter++ Operation<br>Race Condition Risk"]
+        RaceCondition["Race Condition Detected<br>Lost Updates!"]
+        AtomicCounter["AtomicInteger Fix<br>Thread-Safe"]
+        SafeIncrement["Thread-Safe Counter Operation<br>Atomic Operation"]
+  end
+ subgraph Monitor["📈 Monitoring System"]
+        MonitorThread["Monitor Thread<br>Background Daemon"]
+        LogQueueSize["Log Queue Size<br>Every 5 seconds"]
+        LogThreadStatus["Log Thread Pool Status<br>Every 5 seconds"]
+        CheckStalled["Check for Stalled Tasks<br>Every 5 seconds"]
+        ExportJSON["Export Task Status to JSON<br>Every 1 minute"]
+  end
+ subgraph ErrorHandling["🔄 Error Handling & Retry Logic"]
+        FailureDetected{"Task Failed?"}
+        RetryCheck{"Retry Count &lt; 3?"}
+        IncrementRetry["Increment Retry Count"]
+        RetrySubmit["Re-submit Task to Queue"]
+        UpdateFinalFailed["Mark Task as FAILED<br>Final State"]
+        Queue[/"⚡ PriorityBlockingQueue<br>[Thread-Safe Operations]"/]
+  end
+ subgraph Shutdown["🛑 Graceful Shutdown System"]
+        ShutdownHook["Shutdown Hook Triggered<br>Runtime.addShutdownHook"]
+        StopProducers["Stop Producer Threads"]
+        DrainQueue["Drain Remaining Tasks<br>Process All Pending"]
+        ShutdownPool["Shutdown ExecutorService<br>awaitTermination"]
+        FinalStatusUpdate["Update Remaining Tasks<br>Status: CANCELLED"]
+        ShutdownComplete["System Terminated Cleanly"]
+  end
+ subgraph SyncPoints["🔒 Synchronization Points"]
+        QueueSync["Queue Access Synchronization<br>Built-in BlockingQueue Safety"]
+        StatusSync["ConcurrentHashMap Operations<br>Thread-Safe by Design"]
+        CounterSync["Shared Counter Synchronization<br>AtomicInteger/Synchronized Blocks"]
+  end
+    P1 --> CreateTask1
+    CreateTask1 --> SubmitTask1
+    P2 --> CreateTask2
+    CreateTask2 --> SubmitTask2
+    P3 --> CreateTask3
+    CreateTask3 --> SubmitTask3
+    Worker1 --> Fetch1
+    Worker2 --> Fetch2
+    Worker3 --> Fetch3
+    UnsafeIncrement --> SharedCounter
+    SharedCounter --> RaceCondition
+    RaceCondition --> AtomicCounter
+    AtomicCounter --> SafeIncrement
+    MonitorThread --> LogQueueSize & LogThreadStatus & CheckStalled & ExportJSON
+    FailureDetected -- Yes --> RetryCheck
+    RetryCheck -- Yes --> IncrementRetry
+    IncrementRetry --> UpdateRetrying
+    UpdateRetrying --> RetrySubmit
+    RetrySubmit --> Queue
+    RetryCheck -- No --> UpdateFinalFailed
+    FailureDetected -- No --> UpdateCompleted
+    ShutdownHook --> StopProducers
+    StopProducers --> DrainQueue
+    DrainQueue --> ShutdownPool
+    ShutdownPool --> FinalStatusUpdate
+    FinalStatusUpdate --> ShutdownComplete
+    Start(["Start System"]) --> Producers
+    SubmitTask1 --> UpdateSubmitted
+    SubmitTask2 --> UpdateSubmitted
+    SubmitTask3 --> UpdateSubmitted
+    UpdateSubmitted --> StatusMap & Queue
+    Queue --> Fetch1 & Fetch2 & Fetch3 & LogQueueSize
+    Fetch1 --> UpdateProcessing & Process1
+    Fetch2 --> UpdateProcessing & Process2
+    Fetch3 --> UpdateProcessing & Process3
+    UpdateProcessing --> StatusMap
+    Process1 --> FailureDetected & UnsafeIncrement
+    Process2 --> FailureDetected & UnsafeIncrement
+    Process3 --> FailureDetected & UnsafeIncrement
+    UpdateCompleted --> StatusMap
+    UpdateFailed --> StatusMap
+    UpdateFinalFailed --> StatusMap
+    StatusMap --> LogQueueSize & ExportJSON & CheckStalled
+    ConsumerPool --> LogThreadStatus
+    Queue -.-> QueueSync & DrainQueue
+    StatusMap -.-> StatusSync & FinalStatusUpdate
+    SharedCounter -.-> CounterSync
+    Producers -.-> StopProducers
+    ConsumerPool -.-> ShutdownPool
+     P1:::producerStyle
+     P2:::producerStyle
+     P3:::producerStyle
+     CreateTask1:::producerStyle
+     CreateTask2:::producerStyle
+     CreateTask3:::producerStyle
+     SubmitTask1:::producerStyle
+     SubmitTask2:::producerStyle
+     SubmitTask3:::producerStyle
+     StatusMap:::statusStyle
+     UpdateSubmitted:::statusStyle
+     UpdateProcessing:::statusStyle
+     UpdateCompleted:::statusStyle
+     UpdateFailed:::statusStyle
+     UpdateRetrying:::statusStyle
+     Worker1:::consumerStyle
+     Worker2:::consumerStyle
+     Worker3:::consumerStyle
+     Fetch1:::consumerStyle
+     Fetch2:::consumerStyle
+     Fetch3:::consumerStyle
+     Process1:::consumerStyle
+     Process2:::consumerStyle
+     Process3:::consumerStyle
+     SharedCounter:::raceStyle
+     UnsafeIncrement:::raceStyle
+     RaceCondition:::raceStyle
+     AtomicCounter:::raceStyle
+     SafeIncrement:::raceStyle
+     MonitorThread:::monitorStyle
+     LogQueueSize:::monitorStyle
+     LogThreadStatus:::monitorStyle
+     CheckStalled:::monitorStyle
+     ExportJSON:::monitorStyle
+     FailureDetected:::errorStyle
+     RetryCheck:::errorStyle
+     IncrementRetry:::errorStyle
+     RetrySubmit:::errorStyle
+     UpdateFinalFailed:::errorStyle
+     Queue:::queueStyle
+     ShutdownHook:::shutdownStyle
+     StopProducers:::shutdownStyle
+     DrainQueue:::shutdownStyle
+     ShutdownPool:::shutdownStyle
+     FinalStatusUpdate:::shutdownStyle
+     ShutdownComplete:::shutdownStyle
+     QueueSync:::syncStyle
+     StatusSync:::syncStyle
+     CounterSync:::syncStyle
+    classDef producerStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef consumerStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef queueStyle fill:#fff3e0,stroke:#e65100,stroke-width:3px
+    classDef statusStyle fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
+    classDef monitorStyle fill:#fff8e1,stroke:#f57f17,stroke-width:2px
+    classDef errorStyle fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef syncStyle fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef shutdownStyle fill:#fafafa,stroke:#424242,stroke-width:2px
+    classDef raceStyle fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
