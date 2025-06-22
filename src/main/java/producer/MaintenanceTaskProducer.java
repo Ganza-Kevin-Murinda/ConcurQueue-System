@@ -1,6 +1,6 @@
 package producer;
 
-import prototype.ExecutorServiceDemo;
+import prototype.MainApp;
 import lombok.extern.slf4j.Slf4j;
 import model.ETaskStatus;
 import model.Task;
@@ -29,10 +29,10 @@ public class MaintenanceTaskProducer implements Runnable{
                 String payload = String.format("type=%s,target=system,scheduled=true", maintenanceType);
 
                 Task task = new Task(taskName, priority, payload);
-                ExecutorServiceDemo.getTaskQueue().offer(task);
-                ExecutorServiceDemo.getStatusTracker().updateTaskStatus(
+                MainApp.getTaskQueue().offer(task);
+                MainApp.getStatusTracker().updateTaskStatus(
                         task.getId(), ETaskStatus.SUBMITTED, Thread.currentThread().getName());
-                ExecutorServiceDemo.getTotalTasksSubmitted().incrementAndGet();
+                MainApp.getTotalTasksSubmitted().incrementAndGet();
 
                 log.info("Created maintenance task: {} (Priority: {})", taskName, priority);
 

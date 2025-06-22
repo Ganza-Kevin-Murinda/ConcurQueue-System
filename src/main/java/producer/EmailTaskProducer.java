@@ -1,6 +1,6 @@
 package producer;
 
-import prototype.ExecutorServiceDemo;
+import prototype.MainApp;
 import lombok.extern.slf4j.Slf4j;
 import model.ETaskStatus;
 import model.Task;
@@ -30,10 +30,10 @@ public class EmailTaskProducer implements Runnable {
                         5000 + taskCounter, emailType, taskCounter);
 
                 Task task = new Task(taskName, priority, payload);
-                ExecutorServiceDemo.getTaskQueue().offer(task);
-                ExecutorServiceDemo.getStatusTracker().updateTaskStatus(
+                MainApp.getTaskQueue().offer(task);
+                MainApp.getStatusTracker().updateTaskStatus(
                         task.getId(), ETaskStatus.SUBMITTED, Thread.currentThread().getName());
-                ExecutorServiceDemo.getTotalTasksSubmitted().incrementAndGet();
+                MainApp.getTotalTasksSubmitted().incrementAndGet();
 
                 log.info("Created email task: {} (Priority: {})", taskName, priority);
 
