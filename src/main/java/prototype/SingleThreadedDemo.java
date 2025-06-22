@@ -1,15 +1,17 @@
-package test;
+package prototype;
 
 import model.ETaskStatus;
 import model.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import service.SimpleTaskProcessor;
+import service.TaskStatusTracker;
 
 import java.util.PriorityQueue;
 import java.util.Queue;
 
-public class SingleThreadedPrototype {
-    public static final Logger logger = LoggerFactory.getLogger(SingleThreadedPrototype.class);
+public class SingleThreadedDemo {
+    public static final Logger logger = LoggerFactory.getLogger(SingleThreadedDemo.class);
 
     public static void main(String[] args) {
         logger.info("Starting Single -Threaded ConcurQueue Prototype");
