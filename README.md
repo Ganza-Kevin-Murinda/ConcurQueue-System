@@ -21,11 +21,12 @@ ConcurQueue is a fully functional, concurrent task dispatch platform featuring:
 ```bash
 src/
 ├── model/                # Task, TaskStatus enums
-├── producers/            # Producer threads
-├── consumers/            # Worker threads using ExecutorService
+├── monitor/              # Thread monitoring
+├── producer/             # Producer threads
+├── consumer/             # Worker threads using ExecutorService
 ├── core/                 # TaskQueueManager, MonitorService
-├── utils/                # Logger, RetryHandler, ShutdownHook
-└── Main.java             # Bootstrap class
+├── prototype/            # Runnable class
+└── service/              # TaskStatusTracker, SimpleTaskProcessor class
 ```
 
 ---
@@ -97,23 +98,12 @@ A dedicated **Monitor Thread** runs in the background:
 
 ### ⚠️ Race Condition Demo
 
-A shared counter (`taskProcessedCount`) was initially accessed unsafely to simulate a race condition. This was then resolved using:
+A shared counter (`unsafeCounter`) was initially accessed unsafely to simulate a race condition. This was then resolved using:
 
 - `AtomicInteger`
-- and `synchronized` blocks
-
-### 🧱 Deadlock Scenario
-
-A simple deadlock was intentionally introduced using two locks with inverted acquisition order. The resolution used:
-
-- **Lock ordering discipline**
-- or **`tryLock` with timeout** as an alternative
 
 ---
-## 🎥 Demo 
-### [VideoLink](VideoLink)
 
----
 ## 📈 Activity Diagram
 ![Activity-Diagram.png](Activity-Diagram.png)
 
