@@ -108,6 +108,12 @@ A shared counter (`unsafeCounter`) was initially accessed unsafely to simulate a
 ![Activity-Diagram.png](Activity-Diagram.png)
 
 ---
+
+## 🎥Video
+```bash
+https://screenrec.com/share/LzAHS5KEwR
+```
+---
 ## 🧰 How to Run
 
 ### 🛠️ Prerequisites
